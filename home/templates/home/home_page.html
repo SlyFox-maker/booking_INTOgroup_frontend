@@ -55,6 +55,7 @@
         <div class="content">
             <h1>Добро пожаловать на главную страницу!</h1>
             {% if username %}
+            <h2>test</h2>
             <p>Привет, {{ username }}!</p>
             <p>Другие страницы:<a href="{% url 'statuses:statuses' %}">Настроить связи статусов</a></p>
             <p><a href="{% url 'accounts:logout' %}">Выйти</a></p>
