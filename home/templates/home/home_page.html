@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Главная страница</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: space-between;
+            }
+            .content {
+                flex: 3;
+                padding: 20px;
+            }
+            .sidebar {
+                flex: 1;
+                border-left: 2px solid #ccc;
+                padding: 20px;
+                background-color: #f9f9f9;
+            }
+            .sidebar h2 {
+                margin-top: 0;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .form-group input,
+            .form-group select,
+            .form-group button {
+                width: 100%;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            .user-list {
+                margin-bottom: 20px;
+            }
+            .user-list ul {
+                padding-left: 20px;
+            }
+            .user-list ul li {
+                margin-bottom: 5px;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    </head>
+    <body>
+        <div class="content">
+            <h1>Добро пожаловать на главную страницу!</h1>
+            {% if username %}
+            <h1>test of Git</h1>
+            <p>Привет, {{ username }}!</p>
+            <p>Другие страницы:<a href="{% url 'statuses:statuses' %}">Настроить связи статусов</a></p>
+            <p><a href="{% url 'accounts:logout' %}">Выйти</a></p>
+            {% else %}
+            <p>Привет<a href="{% url 'accounts:login' %}">Войдите</a> или <a href="{% url 'accounts:registration' %}">Зарегистрируйтесь</a> чтобы увидеть штуки</p>
+            <p>Другие страницы:<a href="{% url 'client_calendar:client_calendar' %}">Календарь</a></p>
+
+            {% endif %}
+        </div>
+
+        {% if username and role == "administrator" %}
+        <div class="sidebar">
+            <h2>Список пользователей</h2>
+            <div class="user-list">
+                <ul>
+                    {% for user in usersOfAccountArray %}
+                    <li class ="userInfo" data-user-id="{{ user.id }}">
+                        {{ user.name }}
+                        <select name="access_level">
+                            {% for key, value in rights.items %}
+                                <option value="{{ key }}" {% if user.rights == key %}selected{% endif %}>
+                                    {{ value }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+
+                        <select name="roles">
+                            {% for key, value in roles.items %}
+                                <option value="{{ key }}" {% if user.role == key %}selected{% endif %}>
+                                    {{ value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {{ user.status }}
+
+                    </li>
+
+
+                    {% endfor %}
+                </ul>
+                <button id="saveChangesOfUsers">Сохранить изменения</button>
+            </div>
+
+            <h2>Добавить пользователя</h2>
+            <form id="add-user-form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="usernameForNewUser">Логин:</label>
+                    <input id="usernameForNewUser" name="usernameForNewUser" required />
+                </div>
+                <div class="form-group">
+                    <label for="role">Роль:</label>
+                    <select id="role" name="role" required>
+                        {% for key, value in roles.items %}
+                        <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Добавить</button>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#add-user-form").on("submit", function (event) {
+                    event.preventDefault(); // предотвращаем перезагрузку страницы
+                    const role = $("#role").val();
+                    const username = $("#usernameForNewUser").val();
+                    const domain = window.location.hostname.split(".")[0];
+
+                    console.log(role, username, domain);
+                    // отправляем данные через AJAX
+                    $.ajax({
+                        url: "{% url 'accounts:addNewUserByAdmin' %}", // URL для обработки формы
+                        type: "POST",
+                        data: {
+                            username: username,
+                            role: role,
+                            subdomain: domain,
+                            csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF токен
+                        },
+                        success: function (response) {
+                            console.log(response);
+                        },
+                        error: function (response) {},
+                    });
+                });
+                $("#saveChangesOfUsers").on("click", function(){ 
+                    let users =[];
+                    $(".userInfo").each(function(item,element){
+                        const id = $(element).data("user-id");
+                        const rights = $(element).find('select[name="access_level"]').val(); // Получаем значение из первого select
+                        const role = $(element).find('select[name="roles"]').val(); // Получаем значение из второго select
+
+                        users.push([id, rights, role]);
+
+                    });
+                    console.log(users);
+
+                    const domain = window.location.hostname.split(".")[0];
+
+
+                    $.ajax({
+                        url: "{% url 'accounts:changeParametersOfUsers' %}", 
+                        type: "POST",
+                        contentType: "application/json", // Указываем, что отправляем JSON
+                        data: JSON.stringify({
+                            arrayOfUsers: users,
+                            subdomain: domain,
+                        }),
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}" // CSRF-токен в заголовке, Django его ожидает именно так
+                        },
+                        success: function (response) {
+                            if(response["status"]=="success"){
+                                alert("Данные обновлены");
+                            }
+                            console.log(response);
+                        },
+                        error: function (response) {
+                            console.error("Ошибка при отправке данных", response);
+                        },
+                    });
+                });
+            });
+        </script>
+        {% endif %}
+    </body>
+</html>
