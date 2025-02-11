@@ -54,41 +54,48 @@ body {
   display: flex;
   gap: 20px;
   padding: 20px;
+  background: rgba(240, 239, 239, 1);
+  border-radius: 20px;
+  box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
 }
+
 h3 {
   color: #333;
   margin: 0 0 10px 0;
 }
+
 .kanban-board {
   display: flex;
   gap: 10px;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .column {
-  width: 200px;
   min-height: 300px;
-  background: #f4f4f4;
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #ddd;
+  .column-header {
+    display: flex;
+    line-height: 20px;
+    width: 210px;
+    height: 60px;
+    background-color: #dfe6e9;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 20px;
+    flex-direction: column;
+    justify-content: center; 
+      &_viol {
+        background-color: rgba(228, 225, 244, 0.67);
+      }
+      &_done {
+        background-color: rgba(211, 208, 123, 0.41);
+      }
+      &_canceled {
+        background-color: rgba(216, 157, 158, 0.65);
+      }
+  }
 }
-.column-header {
-  background-color: #dfe6e9;
-  padding: 8px;
-  font-weight: bold;
-  border-radius: 6px;
-  text-align: center;
-  margin-bottom: 10px;
-}
-.external-column {
-  background: #e3f2fd;
-  border-color: #bbdefb;
-}
+
 .task {
-  background: white;
+  background-color: rgba(162, 160, 89, 0.19);
   padding: 10px;
   margin: 8px 0;
   border-radius: 6px;
@@ -116,6 +123,7 @@ h3 {
   background: #f8f9fa;
   border-radius: 6px;
 }
+
 .mapping {
   display: flex;
   justify-content: space-between;
@@ -126,6 +134,7 @@ h3 {
   border-radius: 6px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
+
 .removeMapping {
   background: #ff4444;
   color: white;
@@ -135,15 +144,18 @@ h3 {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .removeMapping:hover {
   background: #cc0000;
 }
+
 select {
   padding: 8px;
   margin: 0 5px;
   border-radius: 4px;
   border: 1px solid #ddd;
 }
+
 button {
   padding: 8px 15px;
   background: #007bff;
@@ -153,6 +165,21 @@ button {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 button:hover {
   background: #0056b3;
+}
+
+.status {
+  background-color: rgba(245, 245, 245, 1);
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
+  &__select {
+    padding: 10px 15px;
+    width: 100%;
+    border-radius: 10px;
+    background: rgba(255, 253, 253, 1);
+    box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
+  }
 }

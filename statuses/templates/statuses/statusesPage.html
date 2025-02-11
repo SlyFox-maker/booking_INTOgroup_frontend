@@ -14,30 +14,34 @@
             <div class="boards-container">
                 <!-- Колонки внутренних статусов -->
                 <div>
-                    <h3>Внутренние статусы</h3>
+                    <!--<h3>Внутренние статусы</h3>-->
                     <div class="kanban-board">
                         <div class="column" id="new">
-                            <div class="column-header">Новая заявка</div>
+                            <div class="column-header column-header_viol">Новая заявка</div>
                         </div>
                         <div class="column" id="prebooking">
-                            <div class="column-header">Предварительное бронирование</div>
+                            <div class="column-header column-header_viol">Предварительное бронирование</div>
                         </div>
                         <div class="column" id="confirmed">
-                            <div class="column-header">Подтвержденно</div>
+                            <div class="column-header column-header_viol">Подтвержденно</div>
                         </div>
                         <div class="column" id="done">
-                            <div class="column-header">Состоялось</div>
+                            <div class="column-header column-header_done">Состоялось</div>
                         </div>
                         <div class="column" id="canceled">
-                            <div class="column-header">Не состоялось</div>
+                            <div class="column-header column-header_canceled">Не состоялось</div>
                         </div>
                     </div>
                 </div>
 
                 <p></p>
                 <!-- Колонка внешних статусов -->
-                <div>
-                    <h3>Внешние статусы</h3>
+                <div class="status">
+                    <select class="status__select">
+                        <option>Выберите воронку</option>
+                        <option>1</option>
+                    </select>
+                    <!--<h3>Внешние статусы</h3>-->
                     <div class="kanban-board">
                         <div class="column external-column" id="external-statuses">
                             {% for status in statuses %}
