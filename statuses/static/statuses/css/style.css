@@ -42,6 +42,7 @@ body {
 }
 
 .boards-container {
+  position: relative;
   display: flex;
   gap: 20px;
   padding: 20px;
@@ -49,15 +50,33 @@ body {
   border-radius: 20px;
   box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
 }
+.boards-container .kanban-board {
+  display: flex;
+  gap: 10px;
+}
+.boards-container .line {
+  position: absolute;
+  border-right: 1px dotted rgb(187, 184, 184);
+  max-height: 300px;
+  height: 100%;
+  bottom: 0;
+}
+.boards-container .line_1 {
+  left: 235px;
+}
+.boards-container .line_2 {
+  left: 455px;
+}
+.boards-container .line_3 {
+  left: 675px;
+}
+.boards-container .line_4 {
+  left: 895px;
+}
 
 h3 {
   color: #333;
   margin: 0 0 10px 0;
-}
-
-.kanban-board {
-  display: flex;
-  gap: 10px;
 }
 
 .column {

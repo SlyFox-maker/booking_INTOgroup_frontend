@@ -51,12 +51,36 @@ body {
 
 
 .boards-container {
+  position: relative;
   display: flex;
   gap: 20px;
   padding: 20px;
   background: rgba(240, 239, 239, 1);
   border-radius: 20px;
   box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
+  .kanban-board {
+    display: flex;
+    gap: 10px;
+  }
+  .line {
+    position: absolute;
+    border-right: 1px dotted rgb(187, 184, 184);
+    max-height: 300px;
+    height: 100%; 
+    bottom: 0;
+    &_1 {
+      left: 235px;
+    }
+    &_2 {
+      left: 455px;
+    }
+    &_3 {
+      left: 675px;
+    }
+    &_4 {
+      left: 895px;
+    }
+  }
 }
 
 h3 {
@@ -64,10 +88,6 @@ h3 {
   margin: 0 0 10px 0;
 }
 
-.kanban-board {
-  display: flex;
-  gap: 10px;
-}
 
 .column {
   min-height: 300px;
