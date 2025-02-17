@@ -64,32 +64,32 @@
 
         <div class="divider"></div>
         <!-- Разделительная линия -->
-
-        <div class="filters-wrapper">
-            <div class="filters-header">
-                <span>Пользователи CRM</span>
-                <span>Пользователи</span>
-                <span>Администратор</span>
+        <div class="container">
+            <div class="filters-wrapper">
+                <div class="filters-header">
+                    <span>Пользователи CRM</span>
+                    <span>Пользователи</span>
+                    <span>Администратор</span>
+                </div>
+                {% for user in bitrixUsers %}
+                <div class="filters-container">
+                    <select class="filter-select">
+                        <option>Выберите пользователя</option>
+                        {% for user in bitrixUsers %}
+                        <option value="{{ user.ID }}">{{ user.NAME }} {{ user.LAST_NAME }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="filter-select">
+                        <option>Выберите пользователя</option>
+                        {% for userBron in listOfEmployeeds %}
+                        <option value="{{ userBron.id }}">{{ userBron.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <input class="checkbox" type="checkbox" />
+                </div>
+                {% endfor %}
+                <button class="btn btn_filter" id="saveRightsConf">Сохранить</button>
             </div>
-            {% for user in bitrixUsers %}
-            <div class="filters-container">
-                <select class="filter-select">
-                    <option>Выберите пользователя</option>
-                    {% for user in bitrixUsers %}
-                    <option value="{{ user.ID }}">{{ user.NAME }} {{ user.LAST_NAME }}</option>
-                    {% endfor %}
-                </select>
-                ->
-                <select class="filter-select">
-                    <option>Выберите пользователя</option>
-                    {% for userBron in listOfEmployeeds %}
-                    <option value="{{ userBron.id }}">{{ userBron.username }}</option>
-                    {% endfor %}
-                </select>
-                <input type="checkbox" />
-            </div>
-            {% endfor %}
-            <button id="saveRightsConf">Сохранить</button>
         </div>
 
         {% endif %}
