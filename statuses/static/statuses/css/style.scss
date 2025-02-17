@@ -51,12 +51,36 @@ body {
 
 
 .boards-container {
+  position: relative;
   display: flex;
   gap: 20px;
   padding: 20px;
   background: rgba(240, 239, 239, 1);
   border-radius: 20px;
   box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
+  .kanban-board {
+    display: flex;
+    gap: 10px;
+  }
+  .line {
+    position: absolute;
+    border-right: 1px dotted rgb(187, 184, 184);
+    max-height: 300px;
+    height: 100%; 
+    bottom: 0;
+    &_1 {
+      left: 235px;
+    }
+    &_2 {
+      left: 455px;
+    }
+    &_3 {
+      left: 675px;
+    }
+    &_4 {
+      left: 895px;
+    }
+  }
 }
 
 h3 {
@@ -64,10 +88,6 @@ h3 {
   margin: 0 0 10px 0;
 }
 
-.kanban-board {
-  display: flex;
-  gap: 10px;
-}
 
 .column {
   min-height: 300px;
@@ -95,20 +115,19 @@ h3 {
 }
 
 .task {
-  background-color: rgba(162, 160, 89, 0.19);
+  background-color: rgba(255, 253, 253, 0.9373);
   padding: 10px;
   margin: 8px 0;
   border-radius: 6px;
   cursor: move;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
+  font-size: 15px;
 }
 .task:hover {
   transform: translateX(2px);
 }
 .external-task {
-  background: #bbdefb;
-  border: 1px solid #90caf9;
+  background-color: rgba(162, 160, 89, 0.19);
 }
 .settings-container {
   margin: 30px 15px;
