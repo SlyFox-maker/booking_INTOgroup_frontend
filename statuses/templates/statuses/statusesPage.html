@@ -57,7 +57,113 @@
                 </div>
             </div>
         </div>
+
+        <div class="divider"></div>
+        <!-- Разделительная линия -->
+
+        <div class="filters-wrapper">
+            <div class="filters-header">
+                <span>Пользователи CRM</span>
+                <span>Пользователи</span>
+                <span>Администратор</span>
+            </div>
+            {% for user in bitrixUsers %}
+            <div class="filters-container">
+                <select class="filter-select">
+                    <option>Выберите пользователя</option>
+                    {% for user in bitrixUsers %}
+                    <option value="{{ user.ID }}">{{ user.NAME }} {{ user.LAST_NAME }}</option>
+                    {% endfor %}
+                </select>
+                ->
+                <select class="filter-select">
+                    <option>Выберите пользователя</option>
+                    {% for userBron in listOfEmployeeds %}
+                    <option value="{{ userBron.id }}">{{ userBron.username }}</option>
+                    {% endfor %}
+                </select>
+                <input type="checkbox" />
+            </div>
+            {% endfor %}
+            <button id="saveRightsConf">Сохранить</button>
+        </div>
+
         {% endif %}
+
+        <script>
+            $(document).ready(function() {
+
+                var rights = {{ listOfConfigedRights|safe }}; // Передаем JSON в шаблон
+
+                $(".filters-container").each(function(index) {
+                    if (index < rights.length) {
+                        var config = rights[index];  // Берем соответствующий элемент из массива
+
+                        var userSelect = $(this).find(".filter-select").eq(0); // Первый <select> — пользователи
+                        var roleSelect = $(this).find(".filter-select").eq(1); // Второй <select> — роли
+                        var checkbox = $(this).find("input[type='checkbox']"); // Чекбокс
+
+                        userSelect.val(config.idCRM);  // Устанавливаем пользователя
+                        roleSelect.val(config.employee_id); // Устанавливаем роль
+                        if (config.admin === "administrator") {
+                            checkbox.prop("checked", true);
+                        }
+                    }
+                });
+
+
+                // Функция для сбора данных и отправки на сервер
+                $("#saveRightsConf").click(function() {
+                    var dataToSend = [];
+
+                    $(".filters-container").each(function() {
+                        var userSelect = $(this).find(".filter-select").eq(0);
+                        var roleSelect = $(this).find(".filter-select").eq(1);
+                        var checkbox = $(this).find("input[type='checkbox']");
+
+                        var userId = parseInt(userSelect.val());
+                        var roleId = parseInt(roleSelect.val());
+                        var isAdmin = checkbox.prop("checked") ? "administrator" : "user";
+
+                        if (!isNaN(userId) && !isNaN(roleId) && userId > 0 && roleId > 0) {
+                            dataToSend.push({
+                                idCRM: userId,
+                                employee_id: roleId,
+                                admin: isAdmin
+                            });
+                        } else {
+                            console.warn("Пропущено: userId =", userId, ", roleId =", roleId);
+                        }
+                    });
+
+                    console.log("Отправляем данные:", dataToSend);
+
+                    if (dataToSend.length === 0) {
+                        alert("Нет корректных данных для отправки!");
+                        return;
+                    }
+
+                    // AJAX-запрос
+                    $.ajax({
+                        url: "{% url 'statuses:saveConfigRights' %}",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(dataToSend),
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        success: function(response) {
+                            alert("Данные успешно сохранены!");
+                            console.log("Ответ сервера:", response);
+                        },
+                        error: function(xhr, status, error) {
+                            alert("Ошибка при сохранении данных!");
+                            console.error("Ошибка:", status, error);
+                        }
+                    });
+                });
+            });
+        </script>
 
         <script>
             function fetchStatusUpdate() {
@@ -71,7 +177,7 @@
             // Настроим периодический запрос каждые 1 секунд (10000 миллисекунд)
             console.log(rights);
             if (rights != "none") {
-                setInterval(fetchStatusUpdate, 5000);
+                //setInterval(fetchStatusUpdate, 5000);
             }
         </script>
 

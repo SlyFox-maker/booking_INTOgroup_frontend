@@ -1,0 +1,350 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Календарь</title>
+
+        <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+        <link rel="stylesheet" href="./style/style.css" />
+        <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="view">
+                <button class="view__btn btn btn_top" onclick="location.href='{% url 'client_calendar:client_calendar_month' %}'">Месяц</button>
+                <button class="view__btn btn btn_top week" onclick="location.href='{% url 'client_calendar:client_calendar_week' %}'">Неделя</button>
+                <button class="view__btn btn btn_top day btn_selected" onclick="location.href='{% url 'client_calendar:client_calendar_day' %}'">День</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="filter-left">
+                <form id="makeNewAppointment" class="form-container">
+                    {% csrf_token %}
+                    <div class="info-container">
+                        <h2>Детали записи</h2>
+                    </div>
+                    <label class="form-label">Филиал*</label>
+                    <select id="branch" required>
+                        <option value="" selected disabled>Выберите филиал</option>
+                        {% for branch in branches %}
+                        <option value="{{ branch.branch_id }}">{{ branch.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="form-label">Дата*</label>
+                    <input type="text" id="dateView" required />
+                    <label class="form-label">Услуга*</label>
+                    <select id="service" required>
+                        <option value="" selected disabled>Выберите услугу</option>
+                        {% for service in services %}
+                        <option value="{{ service.service_id }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="form-label">Время*</label>
+                    <input type="time" id="time_start" required />
+                    <input type="time" id="time_end" required />
+                    <label class="form-label">Название зала*</label>
+                    <input type="text" id="name_hall" required />
+                    <label class="form-label">Доп.услуги</label>
+                    <select id="add_services" multiple>
+                        {% for add_service in additional_services %}
+                        <option value="{{ add_service.addictional_service_id }}">{{ add_service.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="serviceDetails">
+                        <h2>Ваши данные:</h2>
+                    </div>
+                    <label class="form-label">Имя*</label>
+                    <input type="text" id="client_name" required />
+                    <label class="form-label">Телефон*</label>
+                    <input type="number" id="client_phone" required />
+                    <label class="form-label">Email</label>
+                    <input type="text" id="client_email" />
+
+                    <div class="budget-wr">
+                        <label class="form-label">Итого:</label>
+                        <input class="input_budget" type="text" id="budget" placeholder="Бюджет" required />
+                    </div>
+                    <p></p>
+
+                    <button type="submit" class="btn">Записаться</button>
+                </form>
+            </div>
+            <div class="calendar-container week day">
+                <div class="title">январь</div>
+                <div class="controls">
+                    <button class="btn" id="prev-month">
+                        <svg width="61" height="16" viewBox="0 0 61 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0.708951 7.29289C0.318427 7.68342 0.318427 8.31658 0.708951 8.70711L7.07291 15.0711C7.46344 15.4616 8.0966 15.4616 8.48713 15.0711C8.87765 14.6805 8.87765 14.0474 8.48713 13.6569L2.83027 8L8.48713 2.34315C8.87765 1.95262 8.87765 1.31946 8.48713 0.928932C8.0966 0.538408 7.46344 0.538408 7.07291 0.928932L0.708951 7.29289ZM60.5401 7L1.41606 7V9L60.5401 9V7Z" fill="black" />
+                        </svg>
+                    </button>
+                    <div class="day-three">
+                        <span>1 пт </span>
+                        <span class="active">2 сб </span>
+                        <span>3 вс</span>
+                    </div>
+                    <button class="btn" id="next-month">
+                        <svg width="61" height="16" viewBox="0 0 61 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M60.2619 8.70711C60.6524 8.31658 60.6524 7.68342 60.2619 7.29289L53.8979 0.928932C53.5074 0.538408 52.8742 0.538408 52.4837 0.928932C52.0932 1.31946 52.0932 1.95262 52.4837 2.34315L58.1405 8L52.4837 13.6569C52.0932 14.0474 52.0932 14.6805 52.4837 15.0711C52.8742 15.4616 53.5074 15.4616 53.8979 15.0711L60.2619 8.70711ZM0.430664 9L59.5548 9L59.5548 7L0.430664 7L0.430664 9Z" fill="black" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="calendar">
+                    <div class="controls controls_week">
+                        <button class="btn btn_week" id="prev-hall">
+                            <
+                            <img src="/img/Arrow.png" alt="" />
+                        </button>
+                        <button class="btn btn_week" id="next-hall">
+                            >
+                            <img src="/img/Arrow-next.png" alt="" />
+                        </button>
+                    </div>
+                </div>
+                <!--Новый код-->
+                <div id="buttonsOfDown">
+                    <div class="busy"></div>
+                    <div class="booked"></div>
+                    <button id="toggleNonWorking">Показать/Скрыть нерабочие часы</button>
+                    <button id="set-default-time">Забронировать 12:00 - 13:00</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="{% static 'js/script.js' %}"></script>
+
+        <script>
+            $(document).ready(function () {
+                // Сначала заполним элементы time, если их нет в .calendar
+                var workingHours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+
+                // Заполнение элементов времени от 0 до 23 часов
+                $(".calendar-container .time").remove(); // Удаляем все старые блоки времени
+                for (var hour = 0; hour <= 23; hour++) {
+                    var formattedHour = hour < 10 ? "0" + hour : hour;
+                    var timeString = formattedHour + ":00";
+
+                    var $timeBlock = $('<div class="time"></div>');
+                    var $timeNumber = $('<div class="time__number"></div>').text(timeString);
+                    var $timeLine = $('<div class="time__line"></div>');
+
+                    $timeBlock.append($timeNumber).append($timeLine);
+
+                    // Вставляем новый элемент времени в .calendar
+                    $("#buttonsOfDown").before($timeBlock);
+
+                    $("#buttonsOfDown").before($timeBlock);
+                }
+
+                // Скрываем не рабочие часы, получая рабочие
+                $(".calendar-container .time").each(function () {
+                    var timeText = $(this).find(".time__number").text().trim();
+                    if (workingHours.indexOf(timeText) === -1) {
+                        $(this).addClass("non-working").hide();
+                    }
+                });
+
+                // Кнопка для скрытия/показа нерабочих часов
+                $("#toggleNonWorking").on("click", function () {
+                    $(".non-working").toggle();
+                });
+                // Массив сокращённых названий дней недели (getDay() возвращает 0 для воскресенья, 1 для понедельника и т.д.)
+                var dayNames = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+
+                // Получаем текущую дату
+                var today = new Date();
+
+                // Находим контейнер и очищаем его
+                var $container = $(".day-three").empty();
+
+                // Заполняем контейнер тремя датами:
+                // i = -1: вчера, i = 0: сегодня, i = +1: завтра
+                for (var i = -1; i <= 1; i++) {
+                    // Создаём копию сегодняшней даты и изменяем её
+                    var currentDate = new Date(today.getTime());
+                    currentDate.setDate(today.getDate() + i);
+
+                    var dayOfMonth = currentDate.getDate();
+                    var dayOfWeek = dayNames[currentDate.getDay()];
+
+                    // Создаём элемент <span> с текстом "число день_недели"
+                    var $span = $("<span>").text(dayOfMonth + " " + dayOfWeek);
+
+                    if (i === 1) {
+                        $span.addClass("active");
+                    }
+
+                    // Добавляем элемент в контейнер
+                    $container.append($span);
+                }
+
+                var dayNames = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
+                var monthNames = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+
+                // Начальная дата (по центру текущий день)
+                var startDate = new Date();
+                startDate.setDate(startDate.getDate() - 1);
+
+                // Функция обновления дней и месяца
+                function updateCalendar() {
+                    var $container = $(".day-three").empty(); // Очищаем контейнер
+                    var currentMonth = startDate.getMonth(); // Текущий месяц
+
+                    for (var i = 0; i < 3; i++) {
+                        var currentDate = new Date(startDate);
+                        currentDate.setDate(startDate.getDate() + i);
+
+                        var dayOfMonth = currentDate.getDate();
+                        var dayOfWeek = dayNames[currentDate.getDay()];
+
+                        var $span = $("<span>").text(dayOfMonth + " " + dayOfWeek);
+
+                        if (i === 1) {
+                            $span.addClass("active");
+                        }
+
+                        $container.append($span);
+                    }
+
+                    // Обновляем название месяца (ориентируемся по центральному дню)
+                    $(".title").text(monthNames[startDate.getMonth()]);
+                }
+
+                // Инициализация календаря
+                updateCalendar();
+
+                // Обработчик кнопки "Назад"
+                $("#prev-month").click(function () {
+                    startDate.setDate(startDate.getDate() - 1);
+                    updateCalendar();
+                });
+
+                // Обработчик кнопки "Вперёд"
+                $("#next-month").click(function () {
+                    startDate.setDate(startDate.getDate() + 1);
+                    updateCalendar();
+                });
+
+                //Загрузка заллов
+
+                var halls = [
+                    { id: 1, name: "Зал 1" },
+                    { id: 2, name: "Зал 2" },
+                    { id: 3, name: "Зал 3" },
+                    { id: 4, name: "Зал 4" },
+                    { id: 5, name: "Зал 5" },
+                ];
+
+                var visibleHalls = 3; // Сколько залов показываем за раз
+                var startIndex = 0; // Индекс первого видимого зала
+
+                // Функция отрисовки залов
+                function renderHalls() {
+                    // Удаляем все текущие элементы залов внутри .calendar
+                    $(".hall").remove();
+
+                    for (var i = 0; i < visibleHalls; i++) {
+                        var index = (startIndex + i) % halls.length; // Цикличный индекс
+                        var hall = halls[index];
+
+                        let $hallDiv = "";
+                        if (i == visibleHalls - 1) {
+                            $hallDiv = `
+                            <div class="hall">
+                                <div class="hall__title">${hall.name}</div>
+                            </div>`;
+                        } else {
+                            $hallDiv = `
+                            <div class="hall">
+                                <div class="hall__title">${hall.name}</div>
+                                <div class="hall__line"></div>
+                            </div>`;
+                        }
+
+                        $(".calendar").append($hallDiv); // Добавляем зал в контейнер .calendar
+                    }
+                }
+
+                // Инициализация залов
+                renderHalls();
+
+                // Обработчик кнопки "назад"
+                $("#prev-hall").click(function () {
+                    startIndex = (startIndex - 1 + halls.length) % halls.length; // Цикличный сдвиг
+                    renderHalls(); // Перерисовываем залы
+                });
+
+                // Обработчик кнопки "вперёд"
+                $("#next-hall").click(function () {
+                    startIndex = (startIndex + 1) % halls.length; // Цикличный сдвиг
+                    renderHalls(); // Перерисовываем залы
+                });
+
+                $(document).on("click", "#set-default-time", function () {
+                    let selectedHallName = "Зал 1"; // Здесь передаем нужный зал, например "Зал 1"
+                    let startTime = "12:00";
+                    let endTime = "13:00";
+
+                    if (selectedHallName === undefined) {
+                        alert("Сначала выберите зал!");
+                        return;
+                    }
+
+                    positionBusyBlockRangeByHall(selectedHallName, startTime, endTime);
+                    console.log(`Выбрано время ${startTime} - ${endTime} для ${selectedHallName}`);
+                });
+
+                function positionBusyBlockRangeByHall(hallName, startTime, endTime) {
+                    var $container = $(".calendar-container.week");
+
+                    // Находим нужный зал по имени
+                    var $selectedHall = $container.find(".calendar .hall").filter(function () {
+                        return $(this).find(".hall__title").text().trim() === hallName;
+                    });
+
+                    if (!$selectedHall.length) {
+                        console.log("Зал не найден");
+                        return;
+                    }
+
+                    var dayOffsetLeft = $selectedHall.offset().left - $container.offset().left;
+
+                    // Находим стартовый и конечный блок времени
+                    var $startBlock = $container.find(".time").filter(function () {
+                        return $(this).find(".time__number").text().trim() === startTime;
+                    });
+
+                    var $endBlock = $container.find(".time").filter(function () {
+                        return $(this).find(".time__number").text().trim() === endTime;
+                    });
+
+                    if (!$startBlock.length || !$endBlock.length) {
+                        console.log("Один из временных блоков не найден");
+                        return;
+                    }
+
+                    var startOffsetTop = $startBlock.offset().top - $container.offset().top;
+                    var endOffsetTop = $endBlock.offset().top - $container.offset().top;
+                    var blockHeight = $endBlock.outerHeight() + endOffsetTop - startOffsetTop;
+
+                    let $busy = $("<div>").addClass("busy");
+                    $container.append($busy);
+
+                    $busy.css({
+                        position: "absolute",
+                        left: dayOffsetLeft - 40,
+                        top: startOffsetTop,
+                        width: $selectedHall.outerWidth() - 100,
+                        height: blockHeight,
+                        zIndex: 10,
+                    });
+
+                    console.log("busy positioned for range: left=" + dayOffsetLeft + ", top=" + startOffsetTop + ", height=" + blockHeight);
+                }
+            });
+        </script>
+    </body>
+</html>

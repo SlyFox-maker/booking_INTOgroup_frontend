@@ -1,0 +1,437 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Календарь</title>
+
+        <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+        <link rel="stylesheet" href="./style.css" />
+        <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    </head>
+    <body>
+        <div class="mini">
+            <img src="/img/mini.png" alt="" />
+        </div>
+        <div class="container">
+            <div class="view">
+                <button class="view__btn btn btn_top" onclick="location.href='{% url 'client_calendar:client_calendar_month' %}'">Месяц</button>
+                <button class="view__btn btn btn_top week btn_selected" onclick="location.href='{% url 'client_calendar:client_calendar_week' %}'">Неделя</button>
+                <button class="view__btn btn btn_top day" onclick="location.href='{% url 'client_calendar:client_calendar_day' %}'">День</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="filter-left">
+                <form id="makeNewAppointment" class="form-container">
+                    {% csrf_token %}
+                    <div class="info-container">
+                        <h2>Детали записи</h2>
+                    </div>
+                    <label class="form-label">Филиал*</label>
+                    <select id="branch" required>
+                        <option value="" selected disabled>Выберите филиал</option>
+                        {% for branch in branches %}
+                        <option value="{{ branch.branch_id }}">{{ branch.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="form-label">Дата*</label>
+                    <input type="text" id="dateView" required />
+                    <label class="form-label">Услуга*</label>
+                    <select id="service" required>
+                        <option value="" selected disabled>Выберите услугу</option>
+                        {% for service in services %}
+                        <option value="{{ service.service_id }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="form-label">Время*</label>
+                    <input type="time" id="time_start" required />
+                    <input type="time" id="time_end" required />
+                    <label class="form-label">Название зала*</label>
+                    <input type="text" id="name_hall" required />
+                    <label class="form-label">Доп.услуги</label>
+                    <select id="add_services" multiple>
+                        {% for add_service in additional_services %}
+                        <option value="{{ add_service.addictional_service_id }}">{{ add_service.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="serviceDetails">
+                        <h2>Ваши данные:</h2>
+                    </div>
+                    <label class="form-label">Имя*</label>
+                    <input type="text" id="client_name" required />
+                    <label class="form-label">Телефон*</label>
+                    <input type="number" id="client_phone" required />
+                    <label class="form-label">Email</label>
+                    <input type="text" id="client_email" />
+
+                    <div class="budget-wr">
+                        <label class="form-label">Итого:</label>
+                        <input class="input_budget" type="text" id="budget" placeholder="Бюджет" required />
+                    </div>
+                    <p></p>
+
+                    <button type="submit" class="btn">Записаться</button>
+                </form>
+            </div>
+            <div class="calendar-container week">
+                <div class="controls">
+                    <button class="btn" id="prev-month">
+                        <svg width="61" height="16" viewBox="0 0 61 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0.708951 7.29289C0.318427 7.68342 0.318427 8.31658 0.708951 8.70711L7.07291 15.0711C7.46344 15.4616 8.0966 15.4616 8.48713 15.0711C8.87765 14.6805 8.87765 14.0474 8.48713 13.6569L2.83027 8L8.48713 2.34315C8.87765 1.95262 8.87765 1.31946 8.48713 0.928932C8.0966 0.538408 7.46344 0.538408 7.07291 0.928932L0.708951 7.29289ZM60.5401 7L1.41606 7V9L60.5401 9V7Z" fill="black" />
+                        </svg>
+                    </button>
+                    <span id="current-month">Январь 2025</span>
+                    <button class="btn" id="next-month">
+                        <svg width="61" height="16" viewBox="0 0 61 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M60.2619 8.70711C60.6524 8.31658 60.6524 7.68342 60.2619 7.29289L53.8979 0.928932C53.5074 0.538408 52.8742 0.538408 52.4837 0.928932C52.0932 1.31946 52.0932 1.95262 52.4837 2.34315L58.1405 8L52.4837 13.6569C52.0932 14.0474 52.0932 14.6805 52.4837 15.0711C52.8742 15.4616 53.5074 15.4616 53.8979 15.0711L60.2619 8.70711ZM0.430664 9L59.5548 9L59.5548 7L0.430664 7L0.430664 9Z" fill="black" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="calendar">
+                    <div class="controls controls_week">
+                        <button class="btn btn_week" id="prev-week">
+                            <!-- Стрелка влево -->
+                            <img src="/img/Arrow.png" alt="" />
+                        </button>
+                        <button class="btn btn_week" id="next-week">
+                            <!-- Стрелка вправо -->
+                            <img src="/img/Arrow-next.png" alt="" />
+                        </button>
+                    </div>
+                    <!-- Дни недели -->
+                    <div class="day bold">Пн</div>
+                    <div class="day bold">Вт</div>
+                    <div class="day bold">Ср</div>
+                    <div class="day bold">Чт</div>
+                    <div class="day bold">Пт</div>
+                    <div class="day bold">Сб</div>
+                    <div class="day bold">Вс</div>
+
+                    <!-- Числа месяца (инициализация JS) -->
+                </div>
+                <!--Новый код-->
+                <div class="busy"></div>
+                <div class="booked"></div>
+                <button id="toggleNonWorking">Показать/Скрыть нерабочие часы</button>
+                <button id="set-default-time">Забронировать 12:00 - 13:00</button>
+            </div>
+        </div>
+
+        <script>
+            function syncrkDate() {
+                // Получаем сегодняшнюю дату
+                var today = new Date();
+
+                // Определяем день недели (в JS: 0 – воскресенье, 1 – понедельник, …)
+                // Если сегодня воскресенье, будем считать его седьмым днём
+                var currentDay = today.getDay();
+                if (currentDay === 0) {
+                    currentDay = 7;
+                }
+
+                // Вычисляем дату понедельника текущей недели:
+                var monday = new Date(today);
+                monday.setDate(today.getDate() - (currentDay - 1));
+
+                // Массив с названиями месяцев (индексы 0-11)
+                var monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+                // Обновляем заголовок текущего месяца
+                $("#current-month").text(monthNames[today.getMonth()] + " " + today.getFullYear());
+
+                // Массив названий дней, чтобы не потерять исходный текст
+                var dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+                // Перебираем все элементы с классом "day bold"
+                $(".calendar .day.bold").each(function (index) {
+                    // Вычисляем дату для текущего элемента (понедельник + index дней)
+                    var currentDate = new Date(monday);
+                    currentDate.setDate(monday.getDate() + index);
+
+                    var dayNumber = currentDate.getDate();
+
+                    // Формируем HTML с двумя блоками:
+                    // .day-name — для названия дня (например, Пн)
+                    // .date-number — для числа месяца, которое мы позиционируем внизу
+                    var newContent = "<div class='day-name'>" + dayNames[index] + "</div>" + "<div class='date-number'>" + dayNumber + "</div>";
+                    $(this).html(newContent);
+
+                    // Если дата совпадает с сегодняшней, добавляем индикатор текущего дня
+                    if (currentDate.getFullYear() === today.getFullYear() && currentDate.getMonth() === today.getMonth() && currentDate.getDate() === today.getDate()) {
+                        $(this).addClass("booked");
+                    }
+                });
+            }
+
+            function buttonsOfChangeWeek() {
+                // Функция для вычисления понедельника для данной даты
+                function getMonday(date) {
+                    var d = new Date(date);
+                    var day = d.getDay();
+                    if (day === 0) {
+                        // воскресенье
+                        day = 7;
+                    }
+                    d.setDate(d.getDate() - (day - 1));
+                    return d;
+                }
+
+                // Инициализация: текущая дата и дата понедельника текущей недели
+                var today = new Date();
+                var currentMonday = getMonday(today);
+
+                // Функция обновления отображения недели
+                function updateWeek() {
+                    var monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+                    var dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+                    // Обновляем заголовок текущего месяца и года.
+                    // Здесь можно взять месяц из currentMonday или, если неделя пересекает месяцы, придумать свою логику.
+                    $("#current-month").text(monthNames[currentMonday.getMonth()] + " " + currentMonday.getFullYear());
+
+                    $(".calendar .day.bold").removeClass("booked");
+
+                    // Обновляем содержимое элементов с классом "day bold"
+                    $(".calendar .day.bold").each(function (index) {
+                        // Вычисляем дату для каждого дня недели (от понедельника currentMonday + index)
+                        var cellDate = new Date(currentMonday);
+                        cellDate.setDate(currentMonday.getDate() + index);
+                        var dayNumber = cellDate.getDate();
+
+                        // Формируем HTML: блок с названием дня и блок с числом месяца, число позиционируется вниз
+                        var newContent = "<div class='day-name'>" + dayNames[index] + "</div>" + "<div class='date-number'>" + dayNumber + "</div>";
+                        $(this).html(newContent);
+
+                        // Если дата совпадает с сегодняшним днём, добавляем индикатор (например, красный кружок)
+                        if (cellDate.toDateString() === new Date().toDateString()) {
+                            $(this).addClass("booked");
+                        }
+                    });
+                }
+
+                // Первоначальное обновление недели
+                updateWeek();
+
+                // Обработчик для кнопки "предыдущая неделя"
+                $("#prev-week").on("click", function () {
+                    currentMonday.setDate(currentMonday.getDate() - 7);
+                    updateWeek();
+                });
+
+                // Обработчик для кнопки "следующая неделя"
+                $("#next-week").on("click", function () {
+                    currentMonday.setDate(currentMonday.getDate() + 7);
+                    updateWeek();
+                });
+            }
+
+            function notAviableDays() {
+                // Указываем, какие дни недели сделать неактивными (0 - Воскресенье, 1 - Понедельник, 5 - Пятница)
+                const inactiveDays = [0, 1, 5];
+
+                // Дни недели (начиная с понедельника)
+                const dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+                var today = new Date();
+                var currentDay = today.getDay(); // День недели (0 - Вс, 1 - Пн, ..., 6 - Сб)
+                if (currentDay === 0) {
+                    currentDay = 7; // Считаем, что Воскресенье = 7
+                }
+
+                var monday = new Date(today);
+                monday.setDate(today.getDate() - (currentDay - 1)); // Вычисляем понедельник текущей недели
+
+                $(".calendar .day.bold").each(function (index) {
+                    var currentDate = new Date(monday);
+                    currentDate.setDate(monday.getDate() + index);
+
+                    var dayNumber = currentDate.getDate();
+                    var dayIndex = currentDate.getDay(); // Получаем индекс дня недели (0 - Вс, 6 - Сб)
+
+                    // Проверяем, чтобы не выйти за границы массива dayNames
+                    var dayLabel = dayNames[index] || "";
+
+                    var newContent = `
+            <div class='day-name'>${dayLabel}</div>
+            <div class='date-number'>${dayNumber}</div>
+        `;
+
+                    $(this).html(newContent);
+
+                    // Если день в списке неактивных, добавляем класс disabled
+                    if (inactiveDays.includes(dayIndex)) {
+                        $(this).addClass("disabled");
+                    }
+                });
+            }
+            $(document).ready(function () {
+                //Заполняем часы
+                var $container = $(".calendar-container.week");
+                $container.find(".time").remove();
+                var $busyElement = $container.find(".busy");
+
+                for (var hour = 0; hour <= 23; hour += 1) {
+                    var formattedHour = hour < 10 ? "0" + hour : hour;
+                    var timeString = formattedHour + ":00";
+
+                    var $timeBlock = $('<div class="time"></div>');
+                    var $timeNumber = $('<div class="time__number"></div>').text(timeString);
+                    var $timeLine = $('<div class="time__line"></div>');
+
+                    $timeBlock.append($timeNumber).append($timeLine);
+
+                    if ($busyElement.length) {
+                        $timeBlock.insertBefore($busyElement);
+                    } else {
+                        $container.append($timeBlock);
+                    }
+                }
+
+                //Скрываем не рабочие часы, получая рабочие
+                var workingHours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+
+                $(".time").each(function () {
+                    var timeText = $(this).find(".time__number").text().trim();
+                    if (workingHours.indexOf(timeText) === -1) {
+                        $(this).addClass("non-working").hide();
+                    }
+                });
+
+                $("#toggleNonWorking").on("click", function () {
+                    $(".non-working").toggle();
+                });
+
+                syncrkDate();
+
+                buttonsOfChangeWeek();
+
+                notAviableDays();
+
+                function positionBusyBlockRange(startTime, endTime) {
+                    var $container = $(".calendar-container.week");
+                    var $selectedDay = $container.find(".calendar .day.bold.booked");
+                    if (!$selectedDay.length) {
+                        console.log("Нет выбранного дня");
+                        return;
+                    }
+                    var dayOffsetLeft = $selectedDay.offset().left - $container.offset().left;
+
+                    var $startBlock = $container.find(".time").filter(function () {
+                        return $(this).find(".time__number").text().trim() === startTime;
+                    });
+                    var $endBlock = $container.find(".time").filter(function () {
+                        return $(this).find(".time__number").text().trim() === endTime;
+                    });
+                    if (!$startBlock.length || !$endBlock.length) {
+                        console.log("Один из временных блоков не найден");
+                        return;
+                    }
+
+                    var startOffsetTop = $startBlock.offset().top - $container.offset().top;
+                    var endOffsetTop = $endBlock.offset().top - $container.offset().top;
+                    var blockHeight = $endBlock.outerHeight() + endOffsetTop - startOffsetTop;
+
+                    let $busy = $("<div>").addClass("busy");
+                    $container.append($busy);
+
+                    $busy.css({
+                        position: "absolute",
+                        left: dayOffsetLeft,
+                        top: startOffsetTop,
+                        width: $selectedDay.outerWidth(),
+                        height: blockHeight,
+                        zIndex: 10,
+                    });
+
+                    console.log("busy positioned for range: left=" + dayOffsetLeft + ", top=" + startOffsetTop + ", height=" + blockHeight);
+                }
+
+                $(document).on("click", ".calendar .day", function () {
+                    // Если день неактивен — ничего не делаем
+                    if ($(this).hasClass("disabled")) return;
+
+                    // Логика выделения дня
+                    $(".calendar .day").removeClass("booked");
+                    $(this).addClass("booked");
+
+                    console.log("Выбрана дата: " + $(this).find(".date-number").text());
+                });
+
+                $(document).on("click", ".calendar .day.bold", function () {
+                    $(".calendar .day.bold").removeClass("booked"); // Убираем выделение со всех элементов
+                    $(this).addClass("booked"); // Добавляем выделение на кликнутый элемент
+
+                    // Получаем индекс выбранного дня
+                    let selectedDayIndex = $(this).index();
+
+                    // Сохраняем индекс выбранного дня в data-атрибут
+                    $(".calendar").attr("data-selected-day", selectedDayIndex);
+
+                    // Получаем число и месяц
+                    let dayNumber = $(this).find(".date-number").text();
+                    let monthYear = $("#current-month").text();
+
+                    console.log(`Выбрана дата: ${dayNumber} ${monthYear}`);
+                });
+
+                // Выделение времени под выбранным днем
+                $(document).on("click", "#set-default-time", function () {
+                    let selectedDayIndex = $(".calendar").attr("data-selected-day");
+
+                    if (selectedDayIndex === undefined) {
+                        alert("Сначала выберите день!");
+                        return;
+                    }
+
+                    positionBusyBlockRange("12:00", "13:00");
+
+                    console.log("Выбрано время 12:00 - 13:00 для выбранного дня.");
+                });
+
+                const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+                let currentDate = new Date();
+                updateCalendar();
+
+                $("#prev-month").click(function () {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    updateCalendar();
+                });
+
+                $("#next-month").click(function () {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    updateCalendar();
+                });
+
+                function updateCalendar() {
+                    let year = currentDate.getFullYear();
+                    let month = currentDate.getMonth();
+
+                    $("#current-month").text(`${monthNames[month]} ${year}`);
+
+                    let firstDay = new Date(year, month, 1);
+                    let lastDay = new Date(year, month + 1, 0);
+
+                    let startDay = firstDay.getDay();
+                    if (startDay === 0) startDay = 7;
+
+                    // Обновляем числа в блоках дней недели
+                    $(".day").each(function (index) {
+                        let dayOffset = index - (startDay - 1);
+                        let newDate = new Date(year, month, 1 + dayOffset);
+
+                        let dayNumber = newDate.getDate();
+                        let isCurrentMonth = newDate.getMonth() === month;
+
+                        $(this).find(".date-number").text(dayNumber);
+                    });
+                }
+            });
+        </script>
+
+        <script src="{% static 'js/script.js' %}"></script>
+    </body>
+</html>
