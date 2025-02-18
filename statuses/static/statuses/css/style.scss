@@ -103,6 +103,17 @@ h3 {
   font-size: 15px;
   padding: 13px 120px;
   border: none;
+  &:hover {
+    background: #d5a648;
+  }
+  &_filter {
+    margin-left: 200px;
+  }
+  &_update {
+    width: 200px;
+    padding: 0;
+    padding: 10px;
+  }
 }
 
 
@@ -193,10 +204,6 @@ select {
 }
 
 
-button:hover {
-  background: #0056b3;
-}
-
 .status {
   background-color: rgba(245, 245, 245, 1);
   padding: 15px;
@@ -213,6 +220,7 @@ button:hover {
 
 
 .filters-header {
+  padding: 10px;
   margin: 20 auto;
   display: flex;
   border-radius: 10px;
@@ -240,4 +248,10 @@ button:hover {
     width: 25px;
     background-color: transparent;
   }
+}
+
+.wr-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }

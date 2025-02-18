@@ -95,6 +95,17 @@ h3 {
   padding: 13px 120px;
   border: none;
 }
+.btn:hover {
+  background: #d5a648;
+}
+.btn_filter {
+  margin-left: 200px;
+}
+.btn_update {
+  width: 200px;
+  padding: 0;
+  padding: 10px;
+}
 
 .column {
   min-height: 300px;
@@ -186,10 +197,6 @@ select {
   border: 1px solid #ddd;
 }
 
-button:hover {
-  background: #0056b3;
-}
-
 .status {
   background-color: rgb(245, 245, 245);
   padding: 15px;
@@ -205,6 +212,7 @@ button:hover {
 }
 
 .filters-header {
+  padding: 10px;
   margin: 20 auto;
   display: flex;
   border-radius: 10px;
@@ -232,4 +240,10 @@ button:hover {
   border-radius: 30px;
   width: 25px;
   background-color: transparent;
+}
+
+.wr-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }/*# sourceMappingURL=style.css.map */
