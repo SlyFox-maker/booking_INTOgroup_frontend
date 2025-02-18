@@ -223,6 +223,11 @@ select {
   justify-content: space-around;
   box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
 }
+.filters-header span {
+  display: flex;
+  gap: 5px;
+  flex-direction: row;
+}
 
 .filters-container {
   display: flex;
