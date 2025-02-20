@@ -1,26 +1,27 @@
+@charset "UTF-8";
 @font-face {
   font-family: "cygre";
-  src: url("/static/fonts/cygre_default/Cygre-Light.ttf");
+  src: url("/local/templates/intoGroup/assets/fonts/cygre_default/Cygre-Light.ttf");
   font-weight: normal;
 }
 @font-face {
   font-family: "cygre";
-  src: url("/static/fonts/cygre_default/Cygre-Bold.ttf");
+  src: url("/local/templates/intoGroup/assets/fonts/cygre_default/Cygre-Bold.ttf");
   font-weight: 700;
 }
 @font-face {
   font-family: "cygre";
-  src: url("/static/fonts/cygre_default/Cygre-ExtraBold.ttf");
+  src: url("/local/templates/intoGroup/assets/fonts/cygre_default/Cygre-ExtraBold.ttf");
   font-weight: 800;
 }
 @font-face {
   font-family: "cygre";
-  src: url("/static/fonts/cygre_default/Cygre-Medium.ttf");
+  src: url("/local/templates/intoGroup/assets/fonts/cygre_default/Cygre-Medium.ttf");
   font-weight: 500;
 }
 @font-face {
   font-family: "cygre";
-  src: url("/static/fonts/cygre_default/Cygre-SemiBold.ttf");
+  src: url("/local/templates/intoGroup/assets/fonts/cygre_default/Cygre-SemiBold.ttf");
   font-weight: 600;
 }
 * {
@@ -64,11 +65,16 @@ h2 {
 .btn {
   background-color: #F0EFEF;
   background: transparent;
-  border: 1px solid #000;
+  border: none;
   border-radius: 10px;
-  padding: 10px 38px;
+  padding: 10px 20px;
   cursor: pointer;
   font-size: 20px;
+}
+.btn_week {
+  border: none;
+  padding: 5px;
+  display: flex;
 }
 .btn_top {
   border: none;
@@ -79,12 +85,26 @@ h2 {
   background: #1E1E1E;
   color: #F0EFEF;
 }
+.btn:hover {
+  border: 1px solid #000;
+}
+.btn_week:hover {
+  border: none;
+}
+.btn_mini {
+  padding: 7px;
+}
+.btn_mini:hover {
+  border: none;
+  padding: 7px;
+  background-color: #D3D07B;
+}
 
 .calendar-container {
   background-color: #F0EFEF;
   box-shadow: 0px 4px 25.8px 0px rgba(0, 0, 0, 0.201);
-  border-radius: 30px 30px 0 30px;
-  font-size: 48px;
+  border-radius: 30px;
+  font-size: 40px;
   width: 100%;
   max-width: 1075px;
   height: 903px;
@@ -98,17 +118,29 @@ h2 {
   align-items: center;
   gap: 65px;
 }
+.calendar-container .controls_week {
+  gap: 0;
+  margin-top: 40px;
+  border-radius: 20px;
+  width: 70px;
+  height: 17px;
+  border: 1px solid;
+}
 
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 10px;
+  height: 650px;
 }
 .calendar .day {
   display: flex;
   justify-content: center;
+  width: 80px;
+  height: 80px;
   align-items: center;
   cursor: pointer;
+  text-transform: uppercase;
   transition: #f4f4f9 0.3s, color 0.3s;
 }
 .calendar .day:hover {
@@ -145,7 +177,7 @@ h2 {
   border-radius: 20px;
 }
 
-.form-left {
+.filter-left {
   background: rgb(245, 245, 245);
   box-shadow: 0px 4px 50px 0px rgba(0, 0, 0, 0.25);
   width: 367px;
@@ -153,7 +185,7 @@ h2 {
   padding: 9px 25px;
   z-index: 1;
 }
-.form-left .form-record {
+.filter-left .form-record {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -178,11 +210,12 @@ h2 {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  background: #fff;
+  padding: 10px;
+  border-radius: 20px;
 }
-
-#serviceDetails {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+.budget-wr .input_budget {
+  text-align: right;
 }
 
 .service-block {
@@ -222,4 +255,207 @@ h2 {
 
 #time_end {
   display: none;
+}
+
+.month {
+  display: none;
+}
+
+.week .calendar {
+  grid-template-columns: repeat(8, 1fr);
+  height: 90px;
+}
+.week .calendar .day {
+  font-weight: 600;
+  width: 90px;
+  height: 90px;
+  font-size: 36px;
+}
+.week .calendar .day .day-name {
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.time {
+  display: flex;
+  flex-direction: row;
+}
+.time__number {
+  font-size: 15px;
+}
+.time__line {
+  border-top: 1px dotted rgb(187, 184, 184);
+  width: 100%;
+}
+
+.busy {
+  width: 120px;
+  background-color: rgba(187, 184, 184, 0.35);
+  border-radius: 20px;
+  height: 50px;
+}
+
+.booked {
+  width: 120px;
+  border-radius: 20px;
+  background-color: rgba(211, 208, 123, 0.41);
+  height: 50px;
+}
+
+.booked-mini {
+  display: flex;
+  height: 30px;
+  width: 30px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.inactive {
+  background-color: rgb(187, 184, 184);
+}
+
+.day .calendar {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.day-three {
+  display: flex;
+  flex-direction: row;
+  gap: 45px;
+}
+.day-three span {
+  font-size: 40px;
+}
+.day-three .active {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background: #fff;
+  width: 110px;
+  height: 80px;
+  border-radius: 20px;
+}
+
+.title {
+  text-align: center;
+}
+
+.hall {
+  display: flex;
+  gap: 100px;
+  align-items: center;
+}
+.hall__title {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.line {
+  position: absolute;
+  border-right: 1px dotted rgb(187, 184, 184);
+  max-height: 700px;
+  height: 100%;
+}
+.line_left {
+  top: 200px;
+  left: 400px;
+}
+.line_right {
+  top: 200px;
+  left: 700px;
+}
+
+.time.non-working {
+  background-color: #e0e0e0;
+  color: #888;
+  border-radius: 10px;
+}
+
+/* Оформление для ячеек с классом .day.bold */
+.calendar .day.bold {
+  position: relative; /* Нужно для абсолютного позиционирования дочерних элементов */
+  text-align: center;
+  padding-top: 10px; /* Отступ сверху для day-name */
+  padding-bottom: 20px; /* Дополнительное пространство снизу для числа */
+}
+
+/* Блок для числа месяца, позиционированный внизу */
+.calendar .day.bold .date-number {
+  position: absolute;
+  bottom: -10px; /* Отступ от нижнего края ячейки */
+  left: 50%;
+  transform: translateX(-50%); /* Центрирование по горизонтали */
+  font-size: 36px;
+  color: #333;
+}
+
+/* Неактивные дни */
+.day.disabled {
+  opacity: 0.5;
+  pointer-events: none; /* Запрещаем клики */
+  background-color: #e0e0e0;
+  color: #aaa;
+  border-radius: 20px;
+}
+
+/* trash */
+.calendar-container.week {
+  position: relative; /* для абсолютного позиционирования .busy */
+}
+
+.mini {
+  display: none;
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  display: flex;
+  background: #FFFFFF;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1;
+  right: 10px;
+  bottom: 10px;
+  right: 10px;
+  bottom: 10px;
+}
+
+.mini-calendar {
+  z-index: 2;
+  height: 320px;
+  width: 340px;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.controls-mini {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-items: center;
+  justify-content: space-around;
+}
+.controls-mini .month-mini {
+  font-size: 15px;
+}
+
+.calendar-mini {
+  justify-items: center;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+.calendar-mini .day-mini {
+  font-size: 15px;
+}
+
+.line-close {
+  position: absolute;
+  bottom: 15px;
+  right: 30px;
 }/*# sourceMappingURL=style.css.map */
