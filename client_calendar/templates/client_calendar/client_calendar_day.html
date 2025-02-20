@@ -7,11 +7,43 @@
         <title>Календарь</title>
 
         <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/client_calendar/client_calendar/static/css/style.css" />
         <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     </head>
     <body>
+        <div class="mini">
+            <img src="/client_calendar/client_calendar/static/img/mini.png" alt="">
+        </div>
+        <div class="calendar-container mini-calendar">
+            <div class="controls-mini">
+                <button class="btn btn_mini" id="prev-month-mini">
+                    <svg width="31" height="8" viewBox="0 0 31 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.04031 3.85842C0.845049 4.05368 0.845049 4.37027 1.04031 4.56553L4.22229 7.74751C4.41755 7.94277 4.73413 7.94277 4.9294 7.74751C5.12466 7.55225 5.12466 7.23566 4.9294 7.0404L2.10097 4.21198L4.9294 1.38355C5.12466 1.18829 5.12466 0.871703 4.9294 0.676441C4.73413 0.481179 4.41755 0.481179 4.22229 0.676441L1.04031 3.85842ZM30.4844 3.71198L1.39386 3.71198V4.71198L30.4844 4.71198V3.71198Z" fill="black"/>
+                    </svg>                        
+                </button>
+                <span id="current-month-mini" class="month-mini">Январь 2025</span>
+                <button class="btn btn_mini" id="next-month-mini">
+                    <svg width="36" height="8" viewBox="0 0 36 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M34.8713 4.35138C35.0654 4.15492 35.0635 3.83834 34.867 3.64428L31.6655 0.481903C31.4691 0.287844 31.1525 0.289788 30.9584 0.486245C30.7644 0.682703 30.7663 0.99928 30.9628 1.19334L33.8085 4.00434L30.9975 6.85009C30.8035 7.04654 30.8054 7.36312 31.0019 7.55718C31.1983 7.75124 31.5149 7.7493 31.709 7.55284L34.8713 4.35138ZM0.00307065 4.71197L34.5187 4.49999L34.5126 3.50001L-0.00307065 3.71198L0.00307065 4.71197Z" fill="black"/>
+                    </svg>                                                                    
+                </button>
+            </div>
+            <div class="calendar-mini">
+                <div class="day-mini bold">Пн</div>
+                <div class="day-mini bold">Вт</div>
+                <div class="day-mini bold">Ср</div>
+                <div class="day-mini bold">Чт</div>
+                <div class="day-mini bold">Пт</div>
+                <div class="day-mini bold">Сб</div>
+                <div class="day-mini bold">Вс</div>
+            </div>
+            <div class="line-close">
+                <svg width="8" height="23" viewBox="0 0 8 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.64645 22.3536C3.84171 22.5488 4.15829 22.5488 4.35355 22.3536L7.53553 19.1716C7.7308 18.9763 7.7308 18.6597 7.53553 18.4645C7.34027 18.2692 7.02369 18.2692 6.82843 18.4645L4 21.2929L1.17157 18.4645C0.976311 18.2692 0.659728 18.2692 0.464466 18.4645C0.269204 18.6597 0.269204 18.9763 0.464466 19.1716L3.64645 22.3536ZM3.5 0L3.5 22H4.5L4.5 0L3.5 0Z" fill="black"/>
+                </svg>                    
+            </div>
+        </div>
         <div class="container">
             <div class="view">
                 <button class="view__btn btn btn_top" onclick="location.href='{% url 'client_calendar:client_calendar_month' %}'">Месяц</button>
@@ -95,12 +127,10 @@
                 <div class="calendar">
                     <div class="controls controls_week">
                         <button class="btn btn_week" id="prev-hall">
-                            <
-                            <img src="/img/Arrow.png" alt="" />
+                            <img src="/client_calendar/client_calendar/static/img/Arrow.png" alt="" />
                         </button>
                         <button class="btn btn_week" id="next-hall">
-                            >
-                            <img src="/img/Arrow-next.png" alt="" />
+                            <img src="/client_calendar/client_calendar/static/img/Arrow-next.png"alt="" />
                         </button>
                     </div>
                 </div>
@@ -346,5 +376,178 @@
                 }
             });
         </script>
+        <script>
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+            
+            let currentMonth = 0; // Январь
+            let currentYear = 2025;
+            
+            function updateCalendar() {
+                const calendar = $(".calendar-mini");
+                calendar.find(".day-mini:not(:lt(7))").remove(); // Удаляем старые числа
+            
+                const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+                // Вычисляем смещение для первого дня (Пн = 1, Вс = 0 -> Пн = 0, Вс = 6)
+                const offset = firstDay === 0 ? 6 : firstDay - 1;
+            
+                // Добавляем пустые клетки для смещения
+                for (let i = 0; i < offset; i++) {
+                    calendar.append('<div class="day-mini"></div>');
+                }
+            
+                // Добавляем числа месяца
+                for (let day = 1; day <= daysInMonth; day++) {
+                    calendar.append(`<div class="day-mini dayNumber-mini" data-day="${day}">${day}</div>`);
+                }
+            
+                // Обновляем заголовок месяца
+                $("#current-month-mini").text(`${monthNames[currentMonth]} ${currentYear}`);
+            
+                syncrkDatemini(monthNames[currentMonth]);
+            }
+            
+            $(document).ready(function () {
+                syncrkDatemini();
+                var today = new Date();
+            
+                updateCalendar();
+            
+                $("#prev-month-mini").click(function () {
+                    currentMonth--;
+                    if (currentMonth < 0) {
+                        currentMonth = 11;
+                        currentYear--;
+                    }
+                    updateCalendar();
+                });
+            
+                $("#next-month-mini").click(function () {
+                    currentMonth++;
+                    if (currentMonth > 11) {
+                        currentMonth = 0;
+                        currentYear++;
+                    }
+                    updateCalendar(monthNames[currentMonth]);
+                });
+            
+                /*$(document).on("click", ".day-mini[data-day]", function () {
+                    $(".day-mini").removeClass("selected"); // Убираем выделение с других дат
+            
+                    $(this).addClass("selected"); // Добавляем выделение выбранной дате
+                    window.selectedDate_mini = `${$(this).data("day")} ${monthNames[currentMonth]} ${currentYear}`;
+                });*/
+            });
+            
+            //Mини-календарь
+            
+            function syncrkDatemini(compareMonth = null) {
+                // Получаем сегодняшнюю дату
+                var today = new Date();
+            
+                // Определяем день недели (в JS: 0 – воскресенье, 1 – понедельник, …)
+            
+                // Массив с названиями месяцев (индексы 0-11)
+                var monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+            
+                if (compareMonth != monthNames[today.getMonth()] && compareMonth != null) {
+                    return;
+                }
+                if (compareMonth == null) {
+                    var today = new Date();
+                    currentMonth = today.getMonth();
+                }
+            
+                // Обновляем заголовок текущего месяца
+                $("#current-month-mini").text(monthNames[today.getMonth()] + " " + today.getFullYear());
+            
+                // Перебираем все элементы с классом "day-mini bold"
+                $(".calendar-mini .dayNumber-mini").each(function (index) {
+                    // Вычисляем дату для текущего элемента (понедельник + index дней)
+            
+                    console.log(index);
+                    console.log(today.getDate());
+            
+                    if (index + 1 === today.getDate()) {
+                        $(this).addClass("booked-mini");
+                    }
+                });
+            }
+            
+            function buttonsOfChangeWeek1() {
+                // Функция для вычисления понедельника для данной даты
+                function getMonday1(date) {
+                    var d = new Date(date);
+                    var day = d.getDay1();
+                    if (day === 0) {
+                        // воскресенье
+                        day = 7;
+                    }
+                    d.setDate(d.getDate1() - (day - 1));
+                    return d;
+                }
+            
+                // Инициализация: текущая дата и дата понедельника текущей недели
+                var today = new Date();
+                var currentMonday = getMonday1(today);
+            
+                // Функция обновления отображения недели
+                function updateWeek1() {
+                    var monthNames1 = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+                    var dayNames1 = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+            
+                    // Обновляем заголовок текущего месяца и года.
+                    // Здесь можно взять месяц из currentMonday или, если неделя пересекает месяцы, придумать свою логику.
+                    $("#current-month-mini").text(monthNames[currentMonday.getMonth()] + " " + currentMonday.getFullYear());
+            
+                    $(".calendar-mini .day-mini.bold").removeClass("booked-mini");
+            
+                    // Обновляем содержимое элементов с классом "day-mini bold"
+                    $(".calendar-mini .day-mini.bold").each(function (index) {
+                        // Вычисляем дату для каждого дня недели (от понедельника currentMonday + index)
+                        var cellDate = new Date(currentMonday);
+                        cellDate.setDate(currentMonday.getDate1() + index);
+                        var dayNumber = cellDate.getDate1();
+            
+                        // Формируем HTML: блок с названием дня и блок с числом месяца, число позиционируется вниз
+                        var newContent = "<div class='day-name'>" + dayNames[index] + "</div>" + "<div class='date-number'>" + dayNumber + "</div>";
+                        $(this).html(newContent);
+            
+                        // Если дата совпадает с сегодняшним днём, добавляем индикатор (например, красный кружок)
+                        if (cellDate.toDateString() === new Date().toDateString()) {
+                            $(this).addClass("booked-mini");
+                        }
+                    });
+                }
+            
+                // Первоначальное обновление недели
+                updateWeek();
+            
+                // Обработчик для кнопки "предыдущая неделя"
+                $("#prev-week-mini").on("click", function () {
+                    currentMonday.setDate(currentMonday.getDate() - 7);
+                    updateWeek();
+                });
+            
+                // Обработчик для кнопки "следующая неделя"
+                $("#next-week-mini").on("click", function () {
+                    currentMonday.setDate(currentMonday.getDate() + 7);
+                    updateWeek();
+                });
+            }
+            
+            
+            //Открыть-закрыть мини-календарь
+            
+            $('.mini').on('click', function() {
+                $('.mini-calendar').css('display', "block");
+            });
+            
+            $('.line-close').on('click', function() {
+                $('.mini-calendar').css('display', "none");
+            });
+            
+                    </script>
     </body>
 </html>
