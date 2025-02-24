@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Главная</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+            body {
+                display: flex;
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+            .sidebar {
+                width: 250px;
+                background: #f4f4f4;
+                padding: 10px;
+                height: 100vh;
+            }
+            .content {
+                flex-grow: 1;
+                padding: 20px;
+            }
+            .menu-item {
+                margin-bottom: 10px;
+            }
+            .submenu {
+                display: none;
+                padding-left: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="sidebar">
+            <div class="menu-item">
+                <button class="toggle" data-url="{% url 'comp_conf:getBranchForm' %}" id="branchList">Филиалы</button>
+                <div class="submenu">Заполнение</div>
+            </div>
+            <div class="menu-item">
+                <button class="toggle" data-url="{% url 'comp_conf:getServiceForm' %}" id="servicesList">Услуги</button>
+                <div class="submenu">Заполнение</div>
+            </div>
+            <div class="menu-item">
+                <button class="toggle" data-url="{% url 'comp_conf:getAddServiceForm' %}" id="addServicesList">Дополнительные услуги</button>
+                <div class="submenu">Заполнение</div>
+            </div>
+            <div class="menu-item">
+                <button class="toggle" data-url="{% url 'comp_conf:getResourceForm' %}" id="resurcesList">Ресурсы</button>
+                <div class="submenu">Заполнение</div>
+            </div>
+            <div class="menu-item">
+                <button class="toggle">Сотрудники</button>
+                <div class="submenu">Заполнение</div>
+            </div>
+            <div class="menu-item">
+                <button class="toggle">Форма</button>
+                <div class="submenu">Заполнение</div>
+            </div>
+        </div>
+        <div class="content" id="content">
+            <!-- Здесь будет подгружаться контент через AJAX -->
+        </div>
+        <script>
+            $(document).ready(function () {
+                const csrftoken = getCookie("csrftoken");
+                function getCookie(name) {
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== "") {
+                        const cookies = document.cookie.split(";");
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === name + "=") {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+
+                $(".toggle").click(function () {
+                    $(".submenu").slideUp(); // Скрываем все подменю
+                    let submenu = $(this).next(".submenu");
+
+                    if (!submenu.is(":visible")) {
+                        submenu.slideDown(); // Открываем только выбранное
+                        const url = $(this).data("url");
+
+                        $.ajax({
+                            url: url, // URL для обработки формы
+                            type: "POST",
+                            data: {
+                                csrfmiddlewaretoken: csrftoken, // CSRF токен
+                            },
+                            success: function (response) {
+                                // Если ответ успешный, отобразим календарь
+                                if (response["status"] == "success") {
+                                    $("#content").html(response["html"]);
+                                }
+                                console.log(response);
+                            },
+                            error: function (response) {
+                                // Если ошибка, отображаем сообщение об ошибке
+                                console.log(response);
+                            },
+                        });
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

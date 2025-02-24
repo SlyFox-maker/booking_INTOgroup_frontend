@@ -1,0 +1,194 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .branch-list,
+    .branch-details {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    .branch-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+    }
+    .branch-item:hover,
+    .branch-item.selected {
+        background-color: #f0f0f0;
+    }
+    .branch-table {
+        display: flex;
+        flex-direction: column;
+    }
+    .branch-row {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        padding: 5px 0;
+    }
+    .branch-cell {
+        flex: 1;
+        padding: 5px;
+        font-weight: bold;
+    }
+    .branch-data .branch-cell {
+        font-weight: normal;
+    }
+    .branch-input {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ccc;
+    }
+</style>
+<div class="header">
+    <h2>Филиалы</h2>
+    <button id="addBranch">Добавить</button>
+</div>
+
+<!-- your_template.html -->
+<div class="branch-list" id="branchList">
+    {% for branch in branches %}
+    <div class="branch-item" data-branch-id="{{ branch.branch_id }}" data-city="{{ branch.city }}" data-address="{{ branch.address }}" data-description="{{ branch.description }}" data-services="{{ branch.services }}" data-hours="{{ branch.hours }}" data-confirm-booking="{{ branch.confirm_booking }}" data-auto-user="{{ branch.auto_user }}" data-confirm-manager="{{ branch.confirm_manager }}" data-integration="{{ branch.integration }}">
+        <span>{{ branch.city }}</span>
+        <span>{{ branch.address }}</span>
+        <span>{{ branch.hours }}</span>
+    </div>
+    {% endfor %}
+</div>
+
+<form class="branch-details" id="branchDetails" data-mode="">
+    <div class="branch-table">
+        <div class="branch-row">
+            <div class="branch-cell">Город</div>
+            <div class="branch-cell">Адрес</div>
+            <div class="branch-cell">Описание</div>
+            <div class="branch-cell">Список услуг</div>
+            <div class="branch-cell">Режим работы</div>
+        </div>
+        <div class="branch-row branch-data">
+            <div class="branch-cell"><input type="text" id="detailCity" class="branch-input" value="" required /></div>
+            <div class="branch-cell"><input type="text" id="detailAddress" class="branch-input" value="" required /></div>
+            <div class="branch-cell"><input type="text" id="detailDescription" class="branch-input" value="" required /></div>
+            <div class="branch-cell">
+                <button id="showServices">Показать услуги</button>
+                <div id="detailServices">-</div>
+            </div>
+            <div class="branch-cell"><input type="text" id="detailHours" class="branch-input" value="" required /></div>
+        </div>
+    </div>
+
+    <div><input type="checkbox" id="confirmBooking" /> <label for="confirmBooking">Подтверждение бронирования</label></div>
+    <div><input type="checkbox" id="autoUser" /> <label for="autoUser">Автоматически пользователем</label></div>
+    <div><input type="checkbox" id="confirmManager" /> <label for="confirmManager">Подтверждение менеджером</label></div>
+    <div><input type="checkbox" id="integration" /> <label for="integration">Интеграция</label></div>
+
+    <input type="submit" id="saveBranch" value="Сохранить" />
+</form>
+
+<script>
+    $(document).ready(function () {
+        $("#addBranch").click(function () {
+            $("#branchDetails").attr("data-mode", "new");
+
+            // Очищаем все текстовые input
+            $(".branch-input").val("");
+
+            // Очищаем div с услугами
+            $("#detailServices").text("");
+
+            // Сбрасываем все чекбоксы
+            $("#confirmBooking, #autoUser, #confirmManager, #integration").prop("checked", false);
+        });
+        $("#branchDetails").submit(function (event) {
+            event.preventDefault();
+            let arrayForSend = {
+                branch_id: $("#branchDetails").attr("data-branch_id"),
+                city: $("#detailCity").val(),
+                address: $("#detailAddress").val(),
+                description: $("#detailDescription").val(),
+                services: $("#detailServices").text(),
+                hours: $("#detailHours").val(),
+                confirmBooking: $("#confirmBooking").is(":checked"),
+                autoUser: $("#autoUser").is(":checked"),
+                confirmManager: $("#confirmManager").is(":checked"),
+                integration: $("#integration").is(":checked"),
+            };
+
+            const mode = $("#branchDetails").data("mode");
+            console.log(arrayForSend);
+
+            if (mode == "new") {
+                $.ajax({
+                    url: "{% url 'comp_conf:addNewBranch' %}", // Путь к серверу для обработки запроса
+                    type: "POST", // Метод отправки
+                    data: JSON.stringify(arrayForSend), // Данные, которые будем отправлять
+                    contentType: "application/json", // Указываем, что данные в формате JSON
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}", // Добавляем CSRF-токен
+                    },
+                    success: function (response) {
+                        console.log("Успешно отправлено:", response); // Обработка успешного ответа
+                        // Можно добавить логику, например, очистить форму или показать сообщение
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("Ошибка при отправке:", error); // Обработка ошибок
+                    },
+                });
+            } else if (mode == "edit") {
+                $.ajax({
+                    url: "{% url 'comp_conf:editExistingdBranch' %}", // Путь к серверу для обработки запроса
+                    type: "POST", // Метод отправки
+                    data: JSON.stringify(arrayForSend), // Данные, которые будем отправлять
+                    contentType: "application/json", // Указываем, что данные в формате JSON
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}", // Добавляем CSRF-токен
+                    },
+                    success: function (response) {
+                        console.log("Успешно отправлено:", response); // Обработка успешного ответа
+                        // Можно добавить логику, например, очистить форму или показать сообщение
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("Ошибка при отправке:", error); // Обработка ошибок
+                    },
+                });
+            }
+        });
+        $(".branch-item").click(function () {
+            $(".branch-item").removeClass("selected");
+            $(this).addClass("selected");
+
+            $("#detailCity").val($(this).data("city"));
+            $("#detailAddress").val($(this).data("address"));
+            $("#detailDescription").val($(this).data("description"));
+            $("#detailServices").text($(this).data("services"));
+            $("#detailHours").val($(this).data("hours"));
+
+            const confirmBooking = $(this).data("confirm-booking") === "True";
+            const autoUser = $(this).data("auto-user") === "True";
+            const confirmManager = $(this).data("confirm-manager") === "True";
+            const integration = $(this).data("integration") === "True";
+
+            console.log(confirmBooking);
+            console.log(autoUser);
+
+            // Устанавливаем состояние чекбоксов в зависимости от значений
+            $("#confirmBooking").prop("checked", confirmBooking);
+            $("#autoUser").prop("checked", autoUser);
+            $("#confirmManager").prop("checked", confirmManager);
+            $("#integration").prop("checked", integration);
+
+            $("#branchDetails").attr("data-mode", "edit");
+
+            $("#branchDetails").attr("data-branch_id", $(this).data("branch-id"));
+        });
+    });
+</script>

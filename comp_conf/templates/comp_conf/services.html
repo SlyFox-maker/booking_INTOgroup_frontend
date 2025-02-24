@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Услуги</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+            .service-list,
+            .service-details {
+                border: 1px solid #ccc;
+                padding: 10px;
+                margin-bottom: 20px;
+            }
+            .service-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                cursor: pointer;
+            }
+            .service-item:hover,
+            .service-item.selected {
+                background-color: #f0f0f0;
+            }
+            .service-table {
+                display: flex;
+                flex-direction: column;
+            }
+            .service-row {
+                display: flex;
+                border-bottom: 1px solid #ddd;
+                padding: 5px 0;
+            }
+            .service-cell {
+                flex: 1;
+                padding: 5px;
+                font-weight: bold;
+            }
+            .service-data .service-cell {
+                font-weight: normal;
+            }
+            .service-input {
+                width: 100%;
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+            .multi-select {
+                width: 100%;
+                height: 100px;
+            }
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h2>Услуги</h2>
+            <button id="addService">Добавить</button>
+        </div>
+        <div class="service-list" id="serviceList">
+            {% for service_data in all_services_data %}
+            <div class="service-item" data-participant-data="{{ service_data.service.participant_data }}" data-service-id="{{ service_data.service.service_id }}" data-name="{{ service_data.service.name }}" data-price="{{ service_data.service.price }}" data-duration="{{ service_data.service.duration }} мин" data-hours="{{ service_data.service.working_hours }}" data-employees="{{ service_data.employees|join:', ' }}" data-resources="{{ service_data.resources|join:', ' }}" data-extra-services="{{ service_data.extra_services|join:', ' }}" data-confirm-booking="{{ service_data.service.confirm_booking }}" data-manager-confirm="{{ service_data.service.manager_confirm }}" data-group-booking="{{ service_data.service.group_booking }}" data-auto-confirm-booking="{{ service_data.service.auto_confirm_booking }}" data-max-participant-number="{{ service_data.service.max_participant_number }}" data-multiple-booking-single-entry="{{ service_data.service.multiple_booking_single_entry }}" data-multiple-entries-booking="{{ service_data.service.multiple_entries_booking }}" data-user-can-add-records="{{ service_data.service.user_can_add_records }}" data-exact_bookings="{{ service_data.service.exact_bookings }}" data-serial-booking="{{ service_data.service.serial_booking }}" data-working-hours="{{ service_data.service.working_hours }}">
+                <span>{{ service_data.service.name }}</span>
+                <span>{{ service_data.service.price }} ₽</span>
+                <span>{{ service_data.service.duration }} мин</span>
+                <span>{{ service_data.service.working_hours }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="service-details" id="serviceDetails">
+            <div class="service-table">
+                <div class="service-row">
+                    <div class="service-cell">Название</div>
+                    <div class="service-cell">Описание</div>
+                    <div class="service-cell">Стоимость</div>
+                    <div class="service-cell">Продолжительность</div>
+                    <div class="service-cell">Режим работы</div>
+                </div>
+                <div class="service-row service-data">
+                    <div class="service-cell"><input type="text" id="detailName" class="service-input" value="-" /></div>
+                    <div class="service-cell"><input type="text" id="detailDescription" class="service-input" value="-" /></div>
+                    <div class="service-cell"><input type="text" id="detailPrice" class="service-input" value="-" /></div>
+                    <div class="service-cell"><input type="text" id="detailDuration" class="service-input" value="-" /></div>
+                    <div class="service-cell"><input type="text" id="detailHours" class="service-input" value="-" /></div>
+                </div>
+            </div>
+
+            <div class="service-sub-section" id="serviceDetails">
+                <h3>Настройки услуги</h3>
+                <div style="display: flex; gap: 20px">
+                    <div>
+                        <label>Сотрудники:</label>
+                        <select multiple class="multi-select">
+                            {% for userBron in listOfEmployeeds %}
+                            <option value="{{ userBron.id }}">{{ userBron.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Ресурсы:</label>
+                        <select multiple class="multi-select"></select>
+                    </div>
+                    <div>
+                        <label>Доп. услуги:</label>
+                        <select multiple class="multi-select"></select>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="confirmBooking" />
+                        <label for="confirmBooking">Подтверждение бронирования</label>
+                    </div>
+                    <div class="hidden" id="bookingOptions">
+                        <input type="checkbox" id="autoUser" />
+                        <label for="autoUser">Автоматически пользователем</label>
+                        <input type="checkbox" id="confirmManager" />
+                        <label for="confirmManager">Подтверждение менеджером</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-sub-section">
+                <h3>Групповая запись</h3>
+                <input type="checkbox" id="groupBooking" />
+                <label for="groupBooking">Групповая запись</label>
+
+                <div id="groupBookingDetails" class="hidden">
+                    <div class="service-table">
+                        <div class="service-row">
+                            <div class="service-cell">Количество участников</div>
+                            <div class="service-cell">Добавить несколько участников в одной заявке</div>
+                            <div class="service-cell">Данные участников</div>
+                        </div>
+                        <div class="service-row service-data">
+                            <div class="service-cell"><input type="text" class="service-input" id="participantsCount" /></div>
+                            <div class="service-cell"><input type="checkbox" id="multipleParticipants" /></div>
+                            <div class="service-cell"><input type="text" class="service-input" id="participantData" /></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" id="multipleBookings" /> <label for="multipleBookings">Несколько записей в одном бронировании</label> <input type="checkbox" id="userCanAdd" /> <label for="userCanAdd">Пользователь может добавлять запись</label>
+                        <input id="exactBookings" type="text" class="service-input" placeholder="Указать точное количество записей" />
+                        <input type="checkbox" id="sequentialBooking" /> <label for="sequentialBooking">Последовательная запись</label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="saveService">Сохранить</button>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#saveService").on("click", function () {
+                    // Собираем данные из формы
+                    let employees = $(".multi-select").eq(0).val() || [];
+                    let resources = $(".multi-select").eq(1).val() || [];
+                    let extraServices = $(".multi-select").eq(2).val() || [];
+
+                    employees = employees.map(Number); // Преобразуем в массив чисел
+                    resources = resources.map(Number);
+                    extraServices = extraServices.map(Number);
+                    let serviceId = $("#serviceDetails").attr("data-service-id");
+                    console.log(serviceId);
+                    let formData = {
+                        service_id: serviceId,
+                        name: $("#detailName").val(),
+                        description: $("#detailDescription").val(),
+                        price: parseFloat($("#detailPrice").val()) || 0,
+                        duration: parseInt($("#detailDuration").val()) || 0,
+                        working_hours: $("#detailHours").val(),
+
+                        employees: employees,
+                        resources: resources,
+                        extraServices: extraServices,
+
+                        confirmBooking: $("#confirmBooking").is(":checked"),
+                        bookingOptions: {
+                            autoUser: $("#autoUser").is(":checked"),
+                            confirmManager: $("#confirmManager").is(":checked"),
+                        },
+
+                        groupBooking: $("#groupBooking").is(":checked"),
+                        groupDetails: {
+                            participantsCount: $("#participantsCount").val(),
+                            multipleParticipants: $("#multipleParticipants").prop("checked"),
+                            participantData: $("#participantData").val(),
+                            multipleBookings: $("#multipleBookings").is(":checked"),
+                            userCanAdd: $("#userCanAdd").is(":checked"),
+                            exactBookings: $("#exactBookings").val(),
+                            sequentialBooking: $("#sequentialBooking").is(":checked"),
+                        },
+                    };
+
+                    console.log(formData); // Проверяем, что собралось правильно
+                    const mode = $("#serviceDetails").data("mode");
+                    console.log(mode);
+
+                    if (mode == "new") {
+                        $.ajax({
+                            url: "{% url 'comp_conf:addNewService' %}", // Путь к серверу для обработки запроса
+                            type: "POST", // Метод отправки
+                            data: JSON.stringify(formData), // Данные, которые будем отправлять
+                            contentType: "application/json", // Указываем, что данные в формате JSON
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}", // Добавляем CSRF-токен
+                            },
+                            success: function (response) {
+                                console.log("Успешно отправлено:", response); // Обработка успешного ответа
+                                // Можно добавить логику, например, очистить форму или показать сообщение
+                            },
+                            error: function (xhr, status, error) {
+                                console.log("Ошибка при отправке:", error); // Обработка ошибок
+                            },
+                        });
+                    } else if (mode == "edit") {
+                        $.ajax({
+                            url: "{% url 'comp_conf:editExistingService' %}", // Путь к серверу для обработки запроса
+                            type: "POST", // Метод отправки
+                            data: JSON.stringify(formData), // Данные, которые будем отправлять
+                            contentType: "application/json", // Указываем, что данные в формате JSON
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}", // Добавляем CSRF-токен
+                            },
+                            success: function (response) {
+                                console.log("Успешно отправлено:", response); // Обработка успешного ответа
+                                // Можно добавить логику, например, очистить форму или показать сообщение
+                            },
+                            error: function (xhr, status, error) {
+                                console.log("Ошибка от сервера:", xhr.responseText); // Здесь можно увидеть полный ответ от сервера
+                                console.log("Статус ошибки:", status);
+                                console.log("Текст ошибки:", error);
+                            },
+                        });
+                    }
+                });
+                $("#addService").click(function () {
+                    $("#serviceDetails").attr("data-mode", "new");
+
+                    $(".multi-select").val(null).trigger("change");
+
+                    // Снимаем все чекбоксы
+                    $("input[type=checkbox]").prop("checked", false);
+
+                    // Очищаем все текстовые поля
+                    $("input[type=text]").val("");
+
+                    // Скрываем блоки, которые зависят от чекбоксов
+                    $("#bookingOptions, #groupBookingDetails").addClass("hidden");
+                });
+                $(".service-item").click(function () {
+                    $("#serviceDetails").attr("data-mode", "edit");
+                    $(".service-item").removeClass("selected");
+                    $(this).addClass("selected");
+
+                    // Заполнение основных данных
+                    $("#serviceDetails").attr("data-service-id", $(this).data("service-id"));
+                    $("#detailName").val($(this).data("name"));
+                    $("#detailDescription").val("-"); // Здесь описание можно заполнять динамически, если оно есть
+                    $("#detailPrice").val($(this).data("price"));
+                    $("#detailDuration").val($(this).data("duration"));
+                    $("#detailHours").val($(this).data("hours"));
+
+                    // Заполнение дополнительных данных
+                    $("#confirmBooking").prop("checked", $(this).data("confirm-booking") === "True"); // проверка на строку "True"
+                    $("#autoUser").prop("checked", $(this).data("auto-confirm-booking") === "True"); // проверка на строку "True"
+                    $("#confirmManager").prop("checked", $(this).data("manager-confirm") === "True"); // проверка на строку "True"
+
+                    // Эмулируем клик на подтверждение бронирования, если чекбокс "подтверждение бронирования" активен
+                    if ($(this).data("confirm-booking") === "True") {
+                        $("#bookingOptions").removeClass("hidden");
+                    } else {
+                        $("#bookingOptions").addClass("hidden");
+                    }
+
+                    // Групповая запись
+                    $("#groupBooking").prop("checked", $(this).data("group-booking") === "True"); // проверка на строку "True"
+                    // Эмулируем клик на групповую запись, если активен
+                    if ($(this).data("group-booking") === "True") {
+                        $("#groupBookingDetails").removeClass("hidden");
+                    } else {
+                        $("#groupBookingDetails").addClass("hidden");
+                    }
+
+                    // Получаем данные сотрудников
+                    let employeesData = $(this).data("employees");
+                    // Проверяем, если данные есть
+                    let employees = [];
+                    if (employeesData) {
+                        // Если это одно число, то превращаем его в массив
+                        employees = employeesData.split ? employeesData.split(",").map(Number) : [Number(employeesData)];
+                    }
+                    // Заполняем и выделяем сотрудников
+                    $(".multi-select").eq(0).val(employees).trigger("change");
+
+                    // Заполнение ресурсов
+                    let resourcesData = $(this).data("resources");
+                    let resources = resourcesData ? resourcesData.split(",").map(Number) : [];
+                    $(".multi-select").eq(1).val(resources).trigger("change"); // Выделяем ресурсы
+
+                    // Заполнение доп. услуг
+                    let extraServicesData = $(this).data("extra-services");
+                    let extraServices = extraServicesData ? extraServicesData.split(",").map(Number) : [];
+                    $(".multi-select").eq(2).val(extraServices).trigger("change"); // Выделяем доп. услуги
+
+                    // Групповая запись
+                    $("#multipleBookings").prop("checked", $(this).data("multiple-entries-booking") === "True"); // проверка на строку "True"
+                    $("#userCanAdd").prop("checked", $(this).data("user-can-add-records") === "True"); // проверка на строку "True"
+                    $("#exactBookings").val($(this).data("exact_bookings") ? $(this).data("exact_bookings") : "");
+                    $("#sequentialBooking").prop("checked", $(this).data("serial-booking") === "True"); // проверка на строку "True"
+
+                    $("#multipleParticipants").prop("checked", $(this).data("multiple-booking-single-entry") === "True"); // проверка на строку "True"
+
+                    $("#participantsCount").val($(this).data("max-participant-number"));
+                    $("#participantData").val($(this).data("participant-data"));
+                });
+
+                $("#confirmBooking").change(function () {
+                    if ($(this).is(":checked")) {
+                        $("#bookingOptions").removeClass("hidden");
+                    } else {
+                        $("#bookingOptions").addClass("hidden");
+                    }
+                });
+
+                $("#groupBooking").change(function () {
+                    if ($(this).is(":checked")) {
+                        $("#groupBookingDetails").removeClass("hidden");
+                    } else {
+                        $("#groupBookingDetails").addClass("hidden");
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
